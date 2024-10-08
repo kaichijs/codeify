@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Codeify - Kayıt{% endblock %}
+
+{% block icerik %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-5 col-md-8">
+      <div class="card shadow-lg border-0 register-card">
+        <div class="card-body p-5">
+          <h3 class="text-center mb-4 fade-in">Kayıt Ol</h3>
+          <form method="POST" action="{% url 'register' %}" class="fade-in-delay">
+            {% csrf_token %}
+
+            {% if error %}
+              <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
+            <div class="mb-3 input-group">
+              <label class="form-label" for="loginName"></label>
+              <input type="text" id="loginName" name="username" class="form-control form-control-lg" placeholder="Kullanıcı adınızı giriniz" required />
+            </div>
+            <div class="mb-3 input-group">
+              <label class="form-label" for="registerPassword"></label>
+              <input type="password" id="registerPassword" name="password" class="form-control form-control-lg" placeholder="Şifrenizi giriniz" required />
+            </div>
+            <div class="mb-3 input-group">
+              <label class="form-label" for="reRegisterPassword"></label>
+              <input type="password" id="reRegisterPassword" name="re-password" class="form-control form-control-lg" placeholder="Tekrar şifrenizi giriniz" required />
+            </div>
+            <div class="d-flex flex-column">
+              <button type="submit" class="btn btn-success btn-lg flex-grow-1 h-100 me-2 register-btn">Kayıt Ol</button>
+              <p class="mt-2 text-center">Eğer zaten hesabınız varsa <a href="{% url "giris" %}" class="login-link">buradan</a> giriş yapın.</p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+  .register-card {
+    transition: all 0.3s ease;
+  }
+  .register-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+  }
+  .fade-in {
+    opacity: 0;
+    animation: fadeIn 1s forwards;
+  }
+  .fade-in-delay {
+    opacity: 0;
+    animation: fadeIn 1s 0.5s forwards;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .input-group input {
+    transition: all 0.3s ease;
+  }
+  .input-group input:focus {
+    transform: scale(1.02);
+  }
+  .register-btn {
+    transition: all 0.3s ease;
+  }
+  .register-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+  .login-link {
+    transition: all 0.3s ease;
+  }
+  .login-link:hover {
+    color: #28a745;
+    text-decoration: underline;
+  }
+</style>
+{% endblock %}

@@ -1,0 +1,38 @@
+body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .background {
+            background-image: url('https://source.unsplash.com/1600x900/?nature');
+            height: 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .welcome-text {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 36px;
+        }
+
+        .welcome-text h1 {
+            margin: 0;
+            font-size: 50px;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+        }
+
+        .welcome-text p {
+            font-size: 20px;
+        }
+        

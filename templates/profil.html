@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+
+{% block title %}Codeify Profil{% endblock %}
+
+{% block icerik %}
+    {% if request.user.is_authenticated %}
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background-attachment: fixed;
+        }
+
+
+
+        .profile-card {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            animation: fadeIn 1s ease-out;
+            margin: 20px;
+        }
+
+
+        .profile-card img {
+            border-radius: 50%;
+            width: 180px;
+            height: 180px;
+            object-fit: cover;
+            margin-bottom: 25px;
+            border: 5px solid #fff;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .profile-card img:hover {
+            transform: scale(1.05);
+        }
+
+        .profile-card h3 {
+            margin: 15px 0;
+            font-size: 28px;
+            color: #333;
+            animation: slideIn 0.5s ease-out 0.5s both;
+        }
+
+        .profile-card p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            animation: slideIn 0.5s ease-out 0.7s both;
+        }
+
+        .social-links {
+            margin: 25px 0;
+            animation: slideIn 0.5s ease-out 0.9s both;
+        }
+
+        .social-links a {
+            margin: 0 15px;
+            color: #007bff;
+            text-decoration: none;
+            font-size: 24px;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: #0056b3;
+            transform: translateY(-3px);
+        }
+
+        .mt-2 {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #555;
+            animation: slideIn 0.5s ease-out 1.1s both;
+        }
+
+        #edit-photo-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            margin-top: 20px;
+            animation: slideIn 0.5s ease-out 1.3s both;
+        }
+
+        #edit-photo-btn:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        #edit-photo-btn:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 480px) {
+            .profile-card {
+                padding: 30px;
+            }
+
+            .profile-card img {
+                width: 150px;
+                height: 150px;
+            }
+
+            .profile-card h3 {
+                font-size: 24px;
+            }
+
+            .social-links a {
+                font-size: 20px;
+            }
+        }
+    </style>
+
+    <div class="profile-card mt-5">
+        <img id="profil-foto" src="{{ profil.profil_fotografi.url }}" alt="Profil Resmi">
+        <button id="edit-photo-btn">Profil Fotoğrafını Düzenle</button>
+        <form id="photo-form" method="post" enctype="multipart/form-data" style="display: none;">
+            {% csrf_token %}
+            <input type="file" id="id_profil_fotografi" name="profil_fotografi" style="display: none;">
+        </form>
+        <h3>{{ profil.kullanici }}</h3>
+        <p>{{ profil.motto }}</p>
+        <div class="social-links">
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+            <a href="#"><i class="fab fa-github"></i></a>
+        </div>
+        <div class="mt-2">Paylaşım Sayısı: {{ profil.paylasim_sayisi }}</div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+
+        $('#edit-photo-btn').on('click', function() {
+            $('#id_profil_fotografi').click();
+        });
+
+        $('#id_profil_fotografi').on('change', function() {
+            var formData = new FormData($('#photo-form')[0]);
+
+            $.ajax({
+                url: "{% url 'profil_fotografi_guncelle' %}",
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    $('#profil-foto').attr('src', response.new_photo_url);
+                },
+                error: function(response) {
+                    alert("Bir hata oluştu.");
+                }
+            });
+        });
+    </script>
+
+    {% else %}
+        {% include 'yonlendirme.html' %}
+    {% endif %}
+{% endblock %}

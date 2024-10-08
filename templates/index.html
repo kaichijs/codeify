@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Codeify - Anasayfa
+{% endblock %}
+
+{% block icerik %}
+<div class="hero-container">
+  <div class="hero-content">
+    <h1 class="hero-title">Codeify</h1>
+    <p class="hero-subtitle">Küçük bir kodla büyük bir fark yarat.</p>
+    <div class="hero-buttons">
+      {% if request.user.is_authenticated %}
+        <a href="" class="btn btn-primary">Hemen paylaş</a>
+      {% else %}
+        <a href="{% url 'giris' %}" class="btn btn-primary">Hemen paylaş</a>
+      {% endif %}
+      <a href="https://discord.gg/Cu47f3RkQd" class="btn btn-secondary">
+        <i class="fab fa-discord"></i> Discord
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .hero-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(45deg, #1a1a2e, #16213e, #0f3460);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    z-index: -1;
+  }
+
+  .hero-content {
+    text-align: center;
+    color: #ffffff;
+    padding: 20px;
+    max-width: 600px;
+  }
+
+  .hero-title {
+    font-size: 5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    animation: fadeInUp 1s ease-out;
+  }
+
+  .hero-subtitle {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    animation: fadeInUp 1s ease-out 0.5s both;
+  }
+
+  .hero-buttons {
+    animation: fadeInUp 1s ease-out 1s both;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 12px 24px;
+    margin: 0 10px;
+    font-size: 1rem;
+    text-decoration: none;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary {
+    background-color: #4a4de7;
+    color: #ffffff;
+    border: none;
+  }
+
+  .btn-secondary {
+    background-color: transparent;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+  }
+
+  .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes gradientBG {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 3rem;
+    }
+
+    .hero-subtitle {
+      font-size: 1.2rem;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      font-size: 0.9rem;
+    }
+  }
+</style>
+
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %} Codeify - {{kod.kodTitle}} {% endblock %}
+
+{% block icerik %}
+{% if request.user.is_authenticated %}
+<div class="container">
+  <div class="row mb-3">
+    <!-- Resim Kısmı -->
+    <div class="col-md-6 p-5 image-container">
+      <img src="{{kod.resim.url}}" class="img-fluid rounded-5" alt="{{kod.kodTitle}}">
+    </div>
+
+    <div class="col-md-6 p-5 title-container">
+        <h1 class="fade-in">{{kod.kodTitle}}</h1>
+        <h5 class="fade-in-delay">{{kod.seoDescription}}</h5>
+    </div>
+
+    <div class="col-12 mt-4 position-relative code-container">
+      <div class="rainbow-border position-relative p-2">
+        <button id="copyBtn" class="btn btn-sm btn-primary copy-btn">Kodu Kopyala</button>
+        <pre><code id="codeBlock" class="hljs">{{ kod.kodDescription }}</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+{% else %}
+{% include 'yonlendirme.html' %}
+{% endif %}
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+<style>
+  .image-container img {
+    transition: transform 0.3s ease;
+  }
+  .image-container:hover img {
+    transform: scale(1.05);
+  }
+  .title-container h1, .title-container h5 {
+    opacity: 0;
+  }
+  .fade-in {
+    animation: fadeIn 1s forwards;
+  }
+  .fade-in-delay {
+    animation: fadeIn 1s 0.5s forwards;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .rainbow-border {
+    border-radius: 10px;
+    background-color: #f8f9fa;
+    position: relative;
+    overflow: hidden;
+  }
+  .rainbow-border::before {
+    content: '';
+    position: absolute;
+    top: -2px; left: -2px; right: -2px; bottom: -2px;
+    background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+    z-index: -1;
+    animation: glowing 20s linear infinite;
+    background-size: 400%;
+  }
+  @keyframes glowing {
+    0% { background-position: 0 0; }
+    50% { background-position: 400% 0; }
+    100% { background-position: 0 0; }
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    transition: all 0.3s ease;
+  }
+  .copy-btn:hover {
+    transform: scale(1.1);
+  }
+</style>
+<script>
+  document.getElementById('copyBtn').addEventListener('click', function() {
+    const codeBlock = document.getElementById('codeBlock').innerText;
+    navigator.clipboard.writeText(codeBlock).then(() => {
+      this.innerText = 'Kopyalandı';
+      this.classList.add('btn-success');
+      this.classList.remove('btn-primary');
+      setTimeout(() => {
+        this.innerText = 'Kodu Kopyala';
+        this.classList.add('btn-primary');
+        this.classList.remove('btn-success');
+      }, 2000);
+    });
+  });
+</script>
+{% endblock %}

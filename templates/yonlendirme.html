@@ -1,0 +1,25 @@
+<div class="container d-flex justify-content-center align-items-center vh-100 text-center">
+            <div class="row">
+                <style>
+                  #progressBar {
+                    animation: progressAnimation 3s forwards;
+                  }
+
+                  @keyframes progressAnimation {
+                    from {
+                      width: 0%;
+                    }
+                    to {
+                      width: 100%;
+                    }
+                  }
+                </style>
+                <h1>Lütfen önce giriş yapın!</h1>
+                <p>Yönlendiriliyorsunuz..</p>
+                <div class="progress">
+                  <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+
+            </div>
+        </div>
+    <meta http-equiv="refresh" content="3; url={% url 'giris' %}">

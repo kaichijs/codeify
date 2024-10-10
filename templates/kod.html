@@ -4,36 +4,43 @@
 
 {% block icerik %}
 {% if request.user.is_authenticated %}
-<div class="container">
-  <div class="row mb-3">
+<div class="container striking-theme mb-4" style="border-radius: 15px; box-shadow: 0 8px 15px rgba(66, 165, 245, 0.5);">
+  <div class="row mb-3 align-items-center">
     {% if request.user.is_superuser %}
-          <button class="btn btn-sm trash-btn" data-bs-toggle="modal" data-bs-target="#deleteModal">
-              <i class="fas fa-trash-alt"></i>
-          </button>
-      </div>
-
+      <button class="btn trash-btn striking-btn" data-bs-toggle="modal" data-bs-target="#deleteModal">
+        <i class="fas fa-trash-alt"></i>
+      </button>
     {% endif %}
     <div class="col-md-6 p-5 image-container">
-      <img src="{{kod.resim.url}}" class="img-fluid rounded-5" alt="{{kod.kodTitle}}">
+      <img src="{{kod.resim.url}}" class="img-fluid rounded shadow-lg striking-image" alt="{{kod.kodTitle}}">
+    </div>
+    <div class="col-md-6 p-5 title-container text-start">
+      <h1 class="title fade-in-striking">{{kod.kodTitle}}</h1>
+      <h5 class="subtitle fade-in-striking-delay">{{kod.seoDescription}}</h5>
+      {% if kod.programlamaDili == 'Python' %}
+        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg" class="language-logo" alt="Python Logo">
+      {% elif kod.programlamaDili == 'C++' %}
+        <img src="https://upload.wikimedia.org/wikipedia/commons/1/18/ISO_C%2B%2B_Logo.svg" class="language-logo" alt="C++ Logo">
+      {% elif kod.programlamaDili == 'C#' %}
+        <img src="https://upload.wikimedia.org/wikipedia/commons/4/4f/Csharp_Logo.png" class="language-logo" alt="C# Logo">
+      {% elif kod.programlamaDili == 'Java' %}
+        <img src="https://upload.wikimedia.org/wikipedia/en/3/30/Java_programming_language_logo.svg" class="language-logo" alt="Java Logo">
+      {% endif %}
     </div>
 
-    <div class="col-md-6 p-5 title-container">
-        <h1 class="fade-in">{{kod.kodTitle}}</h1>
-        <h5 class="fade-in-delay">{{kod.seoDescription}}</h5>
-    </div>
-
-    <div class="col-12 mt-4 position-relative code-container">
-      <div class="rainbow-border position-relative p-2">
-        <button id="copyBtn" class="btn btn-sm btn-primary copy-btn">Kodu Kopyala</button>
-        <pre><code id="codeBlock" class="hljs">{{ kod.kodDescription }}</code></pre>
+    <div class="col-12 mt-4 code-container">
+      <div class="striking-border p-4 position-relative code-block-container">
+        <button id="copyBtn" class="btn striking-btn copy-btn">Kodu Kopyala</button>
+        <pre><code id="codeBlock" class="hljs fade-in-striking">{{ kod.kodDescription }}</code></pre>
       </div>
     </div>
+
   </div>
 </div>
 
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
+    <div class="modal-content striking-modal">
       <div class="modal-header">
         <h5 class="modal-title" id="deleteModalLabel">Kodu Sil</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -42,125 +49,135 @@
         <p>Bu kodu silmek istediğinize emin misiniz?</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
-        <a href="{% url 'kodsil' slug=kod.slug %}" class="btn btn-danger" id="confirmDelete">Sil</a>
+        <button type="button" class="btn btn-secondary striking-btn" data-bs-dismiss="modal">İptal</button>
+        <a href="{% url 'kodsil' slug=kod.slug %}" class="btn btn-danger striking-delete-btn">Sil</a>
       </div>
     </div>
   </div>
 </div>
 
 {% else %}
-{% include 'yonlendirme.html' %}
+  {% include 'yonlendirme.html' %}
 {% endif %}
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/default.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
 <script>hljs.highlightAll();</script>
 <style>
-    .modal-content {
-    border: none;
+  .code-block-container {
+  background: #1e1e1e; /* Daha kontrastlı bir arka plan */
+  color: #f8f8f2; /* Kodun kolay okunabilir olması için açık renkli metin */
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4); /* Daha belirgin bir gölge */
+  padding: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.code-block-container:hover {
+  transform: scale(1.02); /* Hover durumunda hafif bir büyütme efekti */
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+}
+
+.copy-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 10px 15px;
+  font-size: 0.9rem;
+  background-color: #42a5f5;
+  color: #fff;
+  transition: all 0.4s ease;
+  z-index: 10;
+}
+
+.copy-btn:hover {
+  transform: scale(1.1) rotate(-3deg);
+  background-color: #478ed1;
+}
+
+  .striking-theme {
+    font-family: 'Orbitron', sans-serif;
+    color: #333;
+    background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+    padding: 2rem;
+  }
+  .striking-btn {
     border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-  }
-
-  .modal-header, .modal-footer {
-    border: none;
-  }
-
-  .modal-title {
+    background: linear-gradient(45deg, #42a5f5, #478ed1);
+    color: #fff;
     font-weight: bold;
+    transition: all 0.4s ease-in-out;
   }
-
-  #confirmDelete {
-    background-color: #BA0C2F;
-    border: none;
+  .striking-btn:hover {
+    background: linear-gradient(45deg, #478ed1, #42a5f5);
+    transform: translateY(-4px) rotate(2deg);
+  }
+  .striking-image {
+    border-radius: 20px;
+    box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+    transition: transform 0.5s ease, filter 0.4s ease;
+    filter: grayscale(10%);
+  }
+  .striking-image:hover {
+    transform: scale(1.05) rotate(-2deg);
+    filter: grayscale(0%);
+  }
+  .title {
+    font-size: 3rem;
+    color: #0077b6;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  .subtitle {
+    font-size: 1.3rem;
+    color: #00b4d8;
+  }
+  .striking-border {
+    border-radius: 15px;
+    background: rgba(240, 244, 248, 0.85);
+    box-shadow: 0 8px 15px rgba(66, 165, 245, 0.5);
+    border: 2px dashed #42a5f5;
+  }
+  .striking-modal {
+    background: #f0f4f8;
+    border-radius: 20px;
+    color: #333;
+  }
+  .striking-delete-btn {
+    background-color: #e57373;
     transition: all 0.3s ease;
   }
-
-  #confirmDelete:hover {
-    background-color: #8B0000;
+  .striking-delete-btn:hover {
+    background-color: #d32f2f;
     transform: scale(1.05);
   }
-
-  .modal.fade .modal-dialog {
-    transition: transform 0.3s ease-out;
-    transform: scale(0.8);
+  .fade-in-striking {
+    animation: fadeInStriking 0.8s forwards;
   }
-
-  .modal.show .modal-dialog {
-    transform: scale(1);
+  .fade-in-striking-delay {
+    animation: fadeInStriking 0.8s 0.5s forwards;
   }
-  .trash-btn {
-    background-color: #BA0C2F;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    position: absolute;
-    top: 85px;
-    right: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: transform 0.4s ease;
-    }
-
-    .trash-btn i {
-        font-size: 20px;
-    }
-
-    .trash-btn:hover {
-        transform: scale(1.2) rotate(360deg);
-    }
-
-  .image-container img {
-    transition: transform 0.3s ease;
-  }
-  .image-container:hover img {
-    transform: scale(1.05);
-  }
-  .title-container h1, .title-container h5 {
-    opacity: 0;
-  }
-  .fade-in {
-    animation: fadeIn 1s forwards;
-  }
-  .fade-in-delay {
-    animation: fadeIn 1s 0.5s forwards;
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .rainbow-border {
-    border-radius: 10px;
-    background-color: #f8f9fa;
-    position: relative;
-    overflow: hidden;
-  }
-  .rainbow-border::before {
-    content: '';
-    position: absolute;
-    top: -2px; left: -2px; right: -2px; bottom: -2px;
-    background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
-    z-index: -1;
-    animation: glowing 20s linear infinite;
-    background-size: 400%;
-  }
-  @keyframes glowing {
-    0% { background-position: 0 0; }
-    50% { background-position: 400% 0; }
-    100% { background-position: 0 0; }
+  @keyframes fadeInStriking {
+    from { opacity: 0; transform: translateY(20px) skewY(3deg); }
+    to { opacity: 1; transform: translateY(0) skewY(0); }
   }
   .copy-btn {
     position: absolute;
     top: 10px;
     right: 10px;
-    transition: all 0.3s ease;
+    transition: all 0.4s ease;
+    font-weight: bold;
   }
   .copy-btn:hover {
-    transform: scale(1.1);
+    transform: scale(1.1) rotate(-3deg);
+    background-color: #42a5f5;
+  }
+  .language-logo {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    opacity: 0.9;
   }
 </style>
 <script>
@@ -175,43 +192,6 @@
         this.classList.add('btn-primary');
         this.classList.remove('btn-success');
       }, 2000);
-    });
-  });
-
-  function silmeOnay() {
-      var result = confirm("Bu kodu silmek istediğinize emin misiniz?")
-      if (result) {
-          document.location.href='{% url 'kodsil' slug=kod.slug %}'
-      }
-  }
-
-  document.addEventListener('DOMContentLoaded', function() {
-    var deleteModal = document.getElementById('deleteModal');
-    deleteModal.addEventListener('show.bs.modal', function (event) {
-      var modal = this;
-      modal.classList.add('show');
-      setTimeout(function() {
-        modal.querySelector('.modal-dialog').style.transform = 'scale(1)';
-      }, 50);
-    });
-
-    deleteModal.addEventListener('hide.bs.modal', function (event) {
-      var modal = this;
-      modal.querySelector('.modal-dialog').style.transform = 'scale(0.8)';
-      setTimeout(function() {
-        modal.classList.remove('show');
-      }, 300);
-    });
-
-    var confirmDeleteBtn = document.getElementById('confirmDelete');
-    confirmDeleteBtn.addEventListener('click', function(event) {
-      event.preventDefault();
-      var btn = this;
-      btn.classList.add('btn-loading');
-      btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Siliniyor...';
-      setTimeout(function() {
-        window.location.href = btn.getAttribute('href');
-      }, 1000);
     });
   });
 </script>

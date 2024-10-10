@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}Codeify - Kod Onay{% endblock %}
+
+{% block icerik %}
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+
+    .code-card {
+        animation: fadeIn 0.5s ease-out;
+        transition: all 0.3s ease;
+    }
+
+    .code-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .btn-action {
+        height: 40px;
+        width: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        transition: all 0.3s ease;
+        border-radius: 50%;
+        padding: 0;
+    }
+
+    .btn-action:hover {
+        animation: pulse 0.5s infinite;
+    }
+
+    .incele {
+        height: 40px;
+        width: 150px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 5px 10px;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    .incele:hover {
+        animation: pulse 0.5s infinite;
+    }
+
+    .user-link {
+        color: #007bff;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .user-link:hover {
+        color: #0056b3;
+    }
+
+    #progressBar {
+        animation: progressAnimation 3s forwards;
+    }
+
+    @keyframes progressAnimation {
+        from { width: 0%; }
+        to { width: 100%; }
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    /* No content message styling */
+    .no-content {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 50vh;
+        font-size: 24px;
+        color: #666;
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    .no-content span {
+        animation: pulse 1s infinite alternate;
+    }
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+{% if request.user.is_authenticated %}
+    {% if request.user.is_superuser %}
+        <div class="container mt-4">
+            <div class="row">
+                {% if kod %}
+                    {% for i in kod %}
+                        <div class="col-lg-3 col-md-4 col-sm-6 mt-4">
+                            <div class="card code-card h-100">
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title">{{i.kodTitle}}</h5>
+                                    <p class="card-text flex-grow-1">{{i.seoDescription}}</p>
+                                    <div class="mt-auto">
+                                        <p class="card-text"><small class="text-muted">
+                                            <a href="{% url 'profil' user=i.kullanici %}" class="user-link">{{i.kullanici}}</a> adlı kullanıcı tarafından yüklendi.
+                                        </small></p>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-primary incele" onclick="document.location.href='{% url 'kod_incele_detay' slug=i.slug %}'">Kodu İncele</button>
+                                            <button class="btn btn-success btn-action" onclick="document.location.href='{% url 'kod_onayla' slug=i.slug %}'"><i class="fas fa-check"></i></button>
+                                            <button class="btn btn-danger btn-action" onclick="document.location.href='{% url 'kod_reddet' slug=i.slug %}'"><i class="fas fa-times"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <!-- Henüz bekleyen bir kod yoksa gösterilecek mesaj -->
+                    <div class="no-content">
+                        <span>Henüz beklemede olan bir kod yüklenmemiş</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <div class="container d-flex justify-content-center align-items-center vh-100 text-center">
+            <div class="row">
+                <div class="col-12">
+                    <h1>Gerekli yetkiye sahip değilsiniz!</h1>
+                    <p>Anasayfaya yönlendiriliyorsunuz..</p>
+                    <div class="progress">
+                        <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <meta http-equiv="refresh" content="3; url={% url 'anasayfa' %}">
+    {% endif %}
+{% else %}
+    {% include 'yonlendirme.html' %}
+{% endif %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.code-card');
+        cards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
+    });
+</script>
+{% endblock %}

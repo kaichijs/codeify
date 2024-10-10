@@ -11,11 +11,11 @@
     <p class="hero-subtitle">Küçük bir kodla büyük bir fark yarat.</p>
     <div class="hero-buttons">
       {% if request.user.is_authenticated %}
-        <a href="" class="btn btn-primary">Hemen paylaş</a>
+        <a href="{% url 'kod_paylas' %}" class="btn btn-primary">Hemen paylaş</a>
       {% else %}
         <a href="{% url 'giris' %}" class="btn btn-primary">Hemen paylaş</a>
       {% endif %}
-      <a href="https://discord.gg/Cu47f3RkQd" class="btn btn-secondary">
+      <a href="https://discord.gg/EznPAqs2" class="btn btn-secondary">
         <i class="fab fa-discord"></i> Discord
       </a>
     </div>

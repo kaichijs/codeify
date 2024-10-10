@@ -1,7 +1,12 @@
+from datetime import timedelta
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import ProgramlamaDilleri, Kodlar, Profil
-from .forms import ProfilFotoForm
+from django.utils import timezone
+from django.utils.text import slugify
+
+from .models import ProgramlamaDilleri, Kodlar, Profil, KodInceleme
+from .forms import ProfilFotoForm, KodPaylasForm
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
@@ -124,3 +129,108 @@ def profil_fotografi_guncelle(request):
             return JsonResponse({'error': 'Form geçersiz'}, status=400)
 
     return JsonResponse({'error': 'Geçersiz istek'}, status=400)
+
+@login_required
+def kod_paylas_success(request):
+    success_message = "Kod başarıyla paylaşıldı!"
+    form = KodPaylasForm()
+    return render(request, 'paylas.html', {'form': form, 'success_message': success_message})
+
+@login_required
+def kod_paylas(request):
+    form = KodPaylasForm()  # Formu başlatıyoruz
+    success_message = None  # Başarı mesajını başlatıyoruz
+    error_message = None  # Hata mesajını başlatıyoruz
+
+    # Cooldown süresi (örneğin 10 dakika)
+    cooldown_suresi = timedelta(minutes=2)
+
+    profil = Profil.objects.get(kullanici=request.user)
+
+    if not request.user.is_superuser:
+        # Eğer son paylaşım zamanı varsa ve cooldown dolmadıysa hata mesajı döndür
+        if profil.son_paylasim_zamani and timezone.now() - profil.son_paylasim_zamani < cooldown_suresi:
+            kalan_sure = cooldown_suresi - (timezone.now() - profil.son_paylasim_zamani)
+            if kalan_sure.seconds <= 60:
+                error_message = f"Tekrar kod paylaşabilmek için {kalan_sure.seconds} saniye beklemelisiniz."
+            else:
+                error_message = f"Tekrar kod paylaşabilmek için {kalan_sure.seconds // 60} dakika beklemelisiniz."
+            return render(request, 'paylas.html',
+                          {'form': form, 'success_message': success_message, 'error_message': error_message})
+
+    if request.method == 'POST':  # POST isteği geldiğinde
+        form = KodPaylasForm(request.POST, request.FILES)
+        try:
+            if form.is_valid():  # Form geçerliyse
+                kod = form.save(commit=False)  # Veritabanına kaydetmeden önce formu beklet
+                kod.kullanici = request.user  # Oturum açmış kullanıcıyı atıyoruz
+                kod.slug = slugify(kod.kodTitle)  # Slugify ile başlık kısmından slug oluşturuyoruz
+                kod.save()  # Şimdi kaydediyoruz
+
+                # Kullanıcının profilindeki paylaşım sayısını artır
+                profil.paylasim_sayisi += 1
+                profil.son_paylasim_zamani = timezone.now()  # Son paylaşım zamanını güncelle
+                profil.save()
+
+                success_message = "Kod başarıyla paylaşıldı!"  # Başarı mesajı
+                return redirect('kodlar')  # Paylaşılan kodlar sayfasına yönlendir
+            else:
+                error_message = "Formda geçersiz veriler var. Lütfen tekrar deneyin."
+                print(form.errors)  # Formdaki hataları yazdır
+        except Exception as e:
+            error_message = f"Bir hata oluştu: {str(e)}"
+
+    return render(request, 'paylas.html',
+                  {'form': form, 'success_message': success_message, 'error_message': error_message})
+
+def kod_onay(request):
+    bekleyen_kodlar = KodInceleme.objects.all()
+    return render(request, 'kod-onay.html', {'kod': bekleyen_kodlar})
+
+def kod_incele_detay(request, slug):
+    kod_inceleme = get_object_or_404(KodInceleme, slug=slug)
+    return render(request, 'kod-incele-detay.html', {'kod_inceleme': kod_inceleme})
+
+@login_required()
+def kodonayla(request, slug):
+    if not request.user.is_superuser:
+        return redirect('anasayfa')  # Yetkisiz kullanıcıyı yönlendirin
+    # KodInceleme modelinden pk'ya göre kayıt getir
+    kod_inceleme = get_object_or_404(KodInceleme, slug=slug)
+
+    # İlişkili programlama dilinin olup olmadığını kontrol edin
+    if not kod_inceleme.programlamaDili:
+        messages.error(request, "İlişkili programlama dili bulunamadı.")
+        return redirect('anasayfa')  # Uygun bir hata sayfasına yönlendirin
+
+    # Kodlar modeline yeni bir kayıt oluştur
+    yeni_kod = Kodlar(
+        kodTitle=kod_inceleme.kodTitle,
+        kodDescription=kod_inceleme.kodDescription,
+        kullanici=kod_inceleme.kullanici,
+        seoDescription=kod_inceleme.seoDescription,
+        programlamaDili=kod_inceleme.programlamaDili,  # ForeignKey alanı
+        seoTitle=kod_inceleme.kodTitle,
+        slug=kod_inceleme.slug,
+        resim=kod_inceleme.resim,
+        tarih=kod_inceleme.tarih,
+    )
+
+    # Yeni kaydı kaydet
+    yeni_kod.save()
+
+    # KodInceleme kaydını sil
+    kod_inceleme.delete()
+
+    # Başarılı işlemden sonra yönlendirme yap
+    return redirect('kod_onay')
+
+@login_required()
+def kod_reddet(request, slug):
+    if not request.user.is_superuser:
+        return redirect('anasayfa')
+    kod = get_object_or_404(KodInceleme, slug=slug)
+    kod.delete()
+    return redirect('kod_onay')
+
+

@@ -275,3 +275,11 @@ def motto_guncelle(request):
             return JsonResponse({'status': 'fail', 'errors': form.errors}, status=400)
 
     return JsonResponse({'status': 'fail'}, status=400)
+
+@login_required()
+def kodsil(request, slug):
+    if not request.user.is_superuser:
+        return redirect('anasayfa')
+    kod = get_object_or_404(Kodlar, slug=slug)
+    kod.delete()
+    return redirect('kodlar')

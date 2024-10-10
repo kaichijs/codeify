@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls.static import static
 from django.conf import settings
-from kodlar.views import anasayfa, kod, kodlar, python, java, cplusplus, csharp, giris, login_request, logout_request, kayit, register, profil, profil_fotografi_guncelle, profil_duzenle, kod_paylas, kod_paylas_success, kod_onay, kod_incele_detay, kodonayla, kod_reddet, motto_guncelle
+from kodlar.views import anasayfa, kod, kodlar, python, java, cplusplus, csharp, giris, login_request, logout_request, kayit, register, profil, profil_fotografi_guncelle, profil_duzenle, kod_paylas, kod_paylas_success, kod_onay, kod_incele_detay, kodonayla, kod_reddet, motto_guncelle, kodsil
 
 urlpatterns = [
     path('', anasayfa, name='anasayfa'),
@@ -28,4 +28,5 @@ urlpatterns = [
     path('kod-onayla/<str:slug>', kodonayla, name='kod_onayla'),
     path('kod-reddet/<str:slug>', kod_reddet, name='kod_reddet'),
     path('motto-guncelle', motto_guncelle, name='motto_guncelle'),
+    path('kod/sil/<str:slug>', kodsil, name='kodsil'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

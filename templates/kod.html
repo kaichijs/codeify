@@ -6,7 +6,13 @@
 {% if request.user.is_authenticated %}
 <div class="container">
   <div class="row mb-3">
-    <!-- Resim Kısmı -->
+    {% if request.user.is_superuser %}
+          <button class="btn btn-sm trash-btn" data-bs-toggle="modal" data-bs-target="#deleteModal">
+              <i class="fas fa-trash-alt"></i>
+          </button>
+      </div>
+
+    {% endif %}
     <div class="col-md-6 p-5 image-container">
       <img src="{{kod.resim.url}}" class="img-fluid rounded-5" alt="{{kod.kodTitle}}">
     </div>
@@ -24,6 +30,25 @@
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">Kodu Sil</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Bu kodu silmek istediğinize emin misiniz?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+        <a href="{% url 'kodsil' slug=kod.slug %}" class="btn btn-danger" id="confirmDelete">Sil</a>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% else %}
 {% include 'yonlendirme.html' %}
 {% endif %}
@@ -31,6 +56,64 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
 <script>hljs.highlightAll();</script>
 <style>
+    .modal-content {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  }
+
+  .modal-header, .modal-footer {
+    border: none;
+  }
+
+  .modal-title {
+    font-weight: bold;
+  }
+
+  #confirmDelete {
+    background-color: #BA0C2F;
+    border: none;
+    transition: all 0.3s ease;
+  }
+
+  #confirmDelete:hover {
+    background-color: #8B0000;
+    transform: scale(1.05);
+  }
+
+  .modal.fade .modal-dialog {
+    transition: transform 0.3s ease-out;
+    transform: scale(0.8);
+  }
+
+  .modal.show .modal-dialog {
+    transform: scale(1);
+  }
+  .trash-btn {
+    background-color: #BA0C2F;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    position: absolute;
+    top: 85px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.4s ease;
+    }
+
+    .trash-btn i {
+        font-size: 20px;
+    }
+
+    .trash-btn:hover {
+        transform: scale(1.2) rotate(360deg);
+    }
+
   .image-container img {
     transition: transform 0.3s ease;
   }
@@ -92,6 +175,43 @@
         this.classList.add('btn-primary');
         this.classList.remove('btn-success');
       }, 2000);
+    });
+  });
+
+  function silmeOnay() {
+      var result = confirm("Bu kodu silmek istediğinize emin misiniz?")
+      if (result) {
+          document.location.href='{% url 'kodsil' slug=kod.slug %}'
+      }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var deleteModal = document.getElementById('deleteModal');
+    deleteModal.addEventListener('show.bs.modal', function (event) {
+      var modal = this;
+      modal.classList.add('show');
+      setTimeout(function() {
+        modal.querySelector('.modal-dialog').style.transform = 'scale(1)';
+      }, 50);
+    });
+
+    deleteModal.addEventListener('hide.bs.modal', function (event) {
+      var modal = this;
+      modal.querySelector('.modal-dialog').style.transform = 'scale(0.8)';
+      setTimeout(function() {
+        modal.classList.remove('show');
+      }, 300);
+    });
+
+    var confirmDeleteBtn = document.getElementById('confirmDelete');
+    confirmDeleteBtn.addEventListener('click', function(event) {
+      event.preventDefault();
+      var btn = this;
+      btn.classList.add('btn-loading');
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Siliniyor...';
+      setTimeout(function() {
+        window.location.href = btn.getAttribute('href');
+      }, 1000);
     });
   });
 </script>

@@ -160,8 +160,9 @@
         {% if profil.kullanici == request.user %}
             <p id="motto-text">{{ profil.motto }}</p>
             <input type="text" id="motto-input" value="{{ profil.motto }}" maxlength="100" style="display:none;">
+        {% else %}
+            <p>{{ profil.motto }}</p>
         {% endif %}
-        <p>{{ profil.motto }}</p>
         <div class="social-links">
             <a href="#"><i class="fab fa-twitter"></i></a>
             <a href="#"><i class="fab fa-linkedin"></i></a>

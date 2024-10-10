@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.utils.text import slugify
@@ -73,9 +74,14 @@ def anasayfa(request):
     return render(request, 'index.html', {'diller': diller, 'kod': kod})
 
 def kodlar(request):
+    kod_list = Kodlar.objects.all().order_by('-id')  # Tüm kartları al
+    paginator = Paginator(kod_list, 8)  # Her sayfada 8 kart göster
+
+    page_number = request.GET.get('page')  # URL'den sayfa numarasını al
+    page_obj = paginator.get_page(page_number)  # İlgili sayfanın verilerini al
     diller = ProgramlamaDilleri.objects.all()
     kod = Kodlar.objects.filter(aktifMi=True)
-    return render(request, 'kodlar.html', {'kod': kod, 'diller': diller})
+    return render(request, 'kodlar.html', {'kod': kod, 'diller': diller, 'page_obj': page_obj})
 
 def kod(request, slug, programlamaDil):
     diller = get_object_or_404(ProgramlamaDilleri, slug=programlamaDil)
@@ -83,24 +89,44 @@ def kod(request, slug, programlamaDil):
     return render(request, 'kod.html', {'kod': kod, 'diller': diller})
 
 def python(request):
+    python_kodlar_list = Kodlar.objects.filter(programlamaDili__slug="python").order_by('-id')
+    paginator = Paginator(python_kodlar_list, 8)  # Her sayfada 8 kart
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     kodlar = Kodlar.objects.filter(aktifMi=True)
     diller = ProgramlamaDilleri.objects.all()
-    return render(request, 'python.html', { 'kodlar': kodlar , 'diller': diller})
+    return render(request, 'python.html', { 'kodlar': kodlar , 'diller': diller, 'page_obj': page_obj})
 
 def java(request):
+    java_kodlar_list = Kodlar.objects.filter(programlamaDili__slug="java").order_by('-id')
+    paginator = Paginator(java_kodlar_list, 8)
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     kodlar = Kodlar.objects.filter(aktifMi=True)
     diller = ProgramlamaDilleri.objects.all()
-    return render(request, 'java.html', { 'kodlar': kodlar, 'diller': diller})
+    return render(request, 'java.html', { 'kodlar': kodlar, 'diller': diller, 'page_obj': page_obj})
 
 def cplusplus(request):
+    cpp_kodlar_list = Kodlar.objects.filter(programlamaDili__slug="cplusplus").order_by('-id')
+    paginator = Paginator(cpp_kodlar_list, 8)
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     kodlar = Kodlar.objects.filter(aktifMi=True)
     diller = ProgramlamaDilleri.objects.all()
-    return render(request, 'cplusplus.html', { 'kodlar': kodlar, 'diller': diller})
+    return render(request, 'cplusplus.html', { 'kodlar': kodlar, 'diller': diller, 'page_obj': page_obj})
 
 def csharp(request):
+    csharp_kodlar_list = Kodlar.objects.filter(programlamaDili__slug="csharp").order_by('-id')
+    paginator = Paginator(csharp_kodlar_list, 8)
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     kodlar = Kodlar.objects.filter(aktifMi=True)
     diller = ProgramlamaDilleri.objects.all()
-    return render(request, 'csharp.html', { 'kodlar': kodlar, 'diller': diller})
+    return render(request, 'csharp.html', { 'kodlar': kodlar, 'diller': diller, 'page_obj': page_obj})
 
 def profil(request, user):
     kullanici = get_object_or_404(User, username=user)

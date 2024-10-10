@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 
 from .models import ProgramlamaDilleri, Kodlar, Profil, KodInceleme
-from .forms import ProfilFotoForm, KodPaylasForm
+from .forms import ProfilFotoForm, KodPaylasForm, ProfilForm
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
@@ -167,11 +167,6 @@ def kod_paylas(request):
                 kod.slug = slugify(kod.kodTitle)  # Slugify ile başlık kısmından slug oluşturuyoruz
                 kod.save()  # Şimdi kaydediyoruz
 
-                # Kullanıcının profilindeki paylaşım sayısını artır
-                profil.paylasim_sayisi += 1
-                profil.son_paylasim_zamani = timezone.now()  # Son paylaşım zamanını güncelle
-                profil.save()
-
                 success_message = "Kod başarıyla paylaşıldı!"  # Başarı mesajı
                 return redirect('kodlar')  # Paylaşılan kodlar sayfasına yönlendir
             else:
@@ -197,7 +192,7 @@ def kodonayla(request, slug):
         return redirect('anasayfa')  # Yetkisiz kullanıcıyı yönlendirin
     # KodInceleme modelinden pk'ya göre kayıt getir
     kod_inceleme = get_object_or_404(KodInceleme, slug=slug)
-
+    profil = Profil.objects.get(kullanici=kod_inceleme.kullanici)
     # İlişkili programlama dilinin olup olmadığını kontrol edin
     if not kod_inceleme.programlamaDili:
         messages.error(request, "İlişkili programlama dili bulunamadı.")
@@ -215,6 +210,10 @@ def kodonayla(request, slug):
         resim=kod_inceleme.resim,
         tarih=kod_inceleme.tarih,
     )
+    # Profiline 1 paylasım ekleme
+    profil.paylasim_sayisi += 1
+    profil.son_paylasim_zamani = timezone.now()
+    profil.save()
 
     # Yeni kaydı kaydet
     yeni_kod.save()
@@ -234,3 +233,19 @@ def kod_reddet(request, slug):
     return redirect('kod_onay')
 
 
+@login_required
+def motto_guncelle(request):
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        profil = Profil.objects.get(kullanici=request.user)
+
+        # Formu mevcut verilerle dolduruyoruz
+        form = ProfilForm(request.POST, instance=profil)
+
+        if form.is_valid():
+            form.save()  # Form verisi doğrulandıktan sonra kaydediliyor
+            return JsonResponse({'status': 'success'})
+        else:
+            # Form hataları varsa hata mesajlarını döndür
+            return JsonResponse({'status': 'fail', 'errors': form.errors}, status=400)
+
+    return JsonResponse({'status': 'fail'}, status=400)

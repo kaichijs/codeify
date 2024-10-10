@@ -137,16 +137,30 @@
                 font-size: 20px;
             }
         }
+
+        #motto-input {
+            width: 200px;
+            font-size: 16px;
+            justify-content: center;
+            align-items: center;
+            padding: 8px;
+        }
     </style>
 
     <div class="profile-card mt-5">
         <img id="profil-foto" src="{{ profil.profil_fotografi.url }}" alt="Profil Resmi">
+        {% if profil.kullanici == request.user %}
         <button id="edit-photo-btn">Profil Fotoğrafını Düzenle</button>
-        <form id="photo-form" method="post" enctype="multipart/form-data" style="display: none;">
-            {% csrf_token %}
-            <input type="file" id="id_profil_fotografi" name="profil_fotografi" style="display: none;">
-        </form>
+                <form id="photo-form" method="post" enctype="multipart/form-data" style="display: none;">
+                    {% csrf_token %}
+                    <input type="file" id="id_profil_fotografi" name="profil_fotografi" style="display: none;">
+                </form>
+        {% endif %}
         <h3>{{ profil.kullanici }}</h3>
+        {% if profil.kullanici == request.user %}
+            <p id="motto-text">{{ profil.motto }}</p>
+            <input type="text" id="motto-input" value="{{ profil.motto }}" maxlength="100" style="display:none;">
+        {% endif %}
         <p>{{ profil.motto }}</p>
         <div class="social-links">
             <a href="#"><i class="fab fa-twitter"></i></a>
@@ -204,6 +218,40 @@
                 }
             });
         });
+
+        $(document).ready(function(){
+            $('#motto-text').on('click', function() {
+                $(this).hide();
+                $('#motto-input').show().focus();
+            });
+
+            $('#motto-input').on('blur', function() {
+                var newMotto = $(this).val();
+
+
+                if (newMotto !== $('#motto-text').text()) {
+                    $.ajax({
+                        url: "{% url 'motto_guncelle' %}",
+                        type: 'POST',
+                        data: {
+                            'motto': newMotto,
+                            'csrfmiddlewaretoken': '{{ csrf_token }}'
+                        },
+                        success: function(response) {
+                            $('#motto-text').text(newMotto);
+                        },
+                        error: function(response) {
+                            alert("Motto güncellenirken bir hata oluştu.");
+                        }
+                    });
+                }
+
+                $(this).hide(); //
+                $('#motto-text').show();
+            });
+        });
+
+
     </script>
 
     {% else %}

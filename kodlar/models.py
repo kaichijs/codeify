@@ -70,7 +70,7 @@ class KodInceleme(models.Model):
 
 class Profil(models.Model):
     kullanici = models.ForeignKey(User, on_delete=models.CASCADE)
-    motto = models.CharField(max_length=255, default="Henüz bir motto eklenmedi.")
+    motto = models.CharField(max_length=100, default="Henüz bir motto eklenmedi.")
     paylasim_sayisi = models.IntegerField(default=0)
     profil_fotografi = models.ImageField(upload_to='profil-resimleri', default='default.png')
     son_paylasim_zamani = models.DateTimeField(null=True, blank=True)

@@ -18,3 +18,14 @@ class KodPaylasForm(forms.ModelForm):
             'kodDescription': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'resim': forms.ClearableFileInput(attrs={'class': 'form-control-file', 'id': 'id_resim'}),
         }
+
+class ProfilForm(forms.ModelForm):
+    class Meta:
+        model = Profil
+        fields = ['motto']
+
+    def clean_motto(self):
+        motto = self.cleaned_data.get('motto')
+        if len(motto) > 100:
+            raise forms.ValidationError("Motto 100 karakterden uzun olamaz.")
+        return motto
